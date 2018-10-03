@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="Author" content="Ogus">
+	<meta name="Description" content="A procedural map generator created with Javascript, based on noise functions to build a heightmap">
+	<link rel="stylesheet" href="https://unpkg.com/picnic">
+
+	<script type="text/javascript" src="../src/perlin-map.min.js"></script>
+	<script type="text/javascript" src="demo.js" defer></script>
+
+	<title>2D Map Generator - Demo</title>
+</head>
+
+<body>
+	<nav>
+    <h2 class="brand">2D Map Generator</h2>
+		<div class="menu">
+			<label for="modal_info" class="pseudo button icon-help">Info</label>
+    </div>
+  </nav>
+
+	<div class="flex one center" style="padding:60px 10px 10px">
+
+		<div class="four-fifth three-fifth-400 two-fifth-800 fifth-1200">
+			<div class="card">
+				<header><h3>Options</h3></header>
+
+				<section><div class="tabs two">
+					<input id='tab-1' type='radio' name='tabradio' checked><label class="pseudo button toggle" for="tab-1">Map</label>
+					<span>/</span>
+					<input id='tab-2' type='radio' name='tabradio'><label class="pseudo button toggle" for="tab-2">Style</label>
+					<div class="row">
+
+						<div class="full flex center">
+							<form id="map_config">
+								<label class="flex">
+                  <span class="half">Noise</span><input class="half" type="range" name="map_config" id="amplitude_coef_param" value=0.5 min=0.1 max=2 step=0.1>
+                </label>
+								<label class="flex grow">
+                  <span class="half">Zoom</span><input class="half" type="range" name="map_config" id="frequency_param" value=0.5 min=0.1 max=2 step=0.1>
+                </label>
+								<label class="flex grow">
+                  <span class="half">Smoothing</span><input class="half" type="range" name="map_config" id="frequency_coef_param" value=0.5 min=0.1 max=2 step=0.1>
+                </label>
+								<label class="flex grow">
+                  <span class="half">Sea Level</span><input class="half" type="range" name="map_config" id="elevation_param" value=1 min=0.5 max=2 step=0.1>
+                </label>
+							</form>
+							<form class="full flex grow">
+								<label class="full"><input type="checkbox" id="floor_checkbox"><span class="checkable">Stepped Values</span></label>
+								<label class="half">Coefficient</label><input class="half" type="range" id="floor_input" value=20 min=2 max=50>
+							</form>
+							<form class="full flex grow">
+								<label><input type="text" placeholder="Seed" id="seed_input"></label>
+							</form>
+							<div class="flex four grow">
+								<button class="fourth pseudo" id="reset">Reset</button>
+								<button class="half off-fourth" id="start">New Map</button>
+							</div>
+						</div>
+
+						<div class="flex center">
+							<form id="style_config">
+							<div class="two-third">
+								<input type="radio" name="map_style" value="gray" id="gray_style" checked><label for="gray_style" class="checkable">Gray Gradient</label>
+							</div>
+							<div class="two-third">
+								<input type="radio" name="map_style" value="heat" id="heat_style"><label for="heat_style" class="checkable">Heat Gradient</label>
+							</div>
+							<div class="two-third">
+								<input type="radio" name="map_style" value="geo" id="geo_style"><label for="geo_style" class="checkable">Geo Gradient</label>
+							</div>
+							<div class="two-third">
+								<input type="radio" name="map_style" value="real" id="real_style"><label for="real_style" class="checkable">Real Gradient</label>
+							</div>
+							</form>
+
+							<label class="full"><input type="checkbox" id="shadow_checkbox"><span class="checkable">Toggle Shadow</span></label>
+						</div>
+
+					</div>
+				</div></section>
+
+			</div>
+		</div>
+
+		<div class="full four-fifth-800">
+      <div class="flex two center"><div class="full four-fifth-800 three-fifth-1200">
+          <canvas id="canvas" style="width: 100%; height: auto;" width="500" height="400"></canvas>
+      </div></div>
+    </div>
+	</div>
+
+	<div class="modal">
+		<input id="modal_info" type="checkbox" /><label for="modal_info" class="overlay"></label>
+		<div>
+			<header>
+				<h3>Informations</h3>
+				<label for="modal_info" class="close">&times;</label>
+			</header>
+	    <section class="content">
+	      <p>Nothing to display currently</p>
+	    </section>
+			<footer>
+				<!-- <label for="modal_info" class="button dangerous">Close</label> -->
+			</footer>
+		</div>
+	</div>
+
+</body>
+</html>
