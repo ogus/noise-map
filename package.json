@@ -1,7 +1,7 @@
 {
   "name": "perlin-map",
   "version": "1.0.0",
-  "description": "Procedural map generator using Perlin / simplex noise",
+  "description": "Procedural map generator using Perlin and simplex noise",
   "scripts": {
     "build": "terser src/perlin-map.js -c -m reserved=['PerlinMap','HeightMap'] > src/perlin-map.min.js"
   },
