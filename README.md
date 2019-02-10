@@ -1,1 +1,1 @@
-# 2D map generator with Perlin noise
+# Procedural 2D map generator from noise

@@ -2,8 +2,8 @@
 
 var dom = {
   mapConfig: null,
-  floorToggle: null,
-  floorInput: null,
+  stepToggle: null,
+  stepInput: null,
   seedInput: null,
   styleConfig: null,
   shadowToggle: null,
@@ -11,12 +11,13 @@ var dom = {
   buttonReset: null
 };
 
-var canvas, ctx, map;
+var canvas, ctx, generator, map;
 
 window.onload = function () {
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
-  map = null;
+
+  generator = new NoiseMap.MapGenerator();
 
   initDOM();
   initListener();
@@ -25,8 +26,8 @@ window.onload = function () {
 
 function initDOM() {
   dom.mapConfig = document.getElementsByName("map_config");
-  dom.floorToggle = document.getElementById("floor_checkbox");
-  dom.floorInput = document.getElementById("floor_input");
+  dom.stepToggle = document.getElementById("step_checkbox");
+  dom.stepInput = document.getElementById("step_input");
   dom.seedInput = document.getElementById("seed_input");
   dom.styleConfig = document.getElementById("style_config");
   dom.shadowToggle = document.getElementById("shadow_checkbox");
@@ -39,9 +40,9 @@ function initListener() {
     dom.mapConfig[i].addEventListener("change", createHeightmap, false);
   }
 
-  dom.floorToggle.addEventListener("change", createHeightmap, false) ;
-  dom.floorInput.addEventListener("change", function (e) {
-    if(dom.floorToggle.checked){
+  dom.stepToggle.addEventListener("change", createHeightmap, false);
+  dom.stepInput.addEventListener("change", function (e) {
+    if(dom.stepToggle.checked){
       createHeightmap();
     }
   }, false);
@@ -54,29 +55,24 @@ function initListener() {
 }
 
 function startMapCreation() {
-  if (dom.seedInput.value.length > 0) {
-    map = new PerlinMap(250,250, dom.seedInput.value.value);
-  }
-  else {
-    map = new PerlinMap(250,250);
-  }
+  generator.setSeed(dom.seedInput.value);
   createHeightmap();
 }
 
 function createHeightmap() {
-  let config = getUserConfig();
-  map.compute("perlin", config);
-  map.heightmap.scaleValues(config.elevation);
-  if(config.floor) {
-    map.heightmap.floorValues(config.floorValue);
+  let userConfig = getUserConfig();
+  map = generator.createMap(250,250, userConfig);
+
+  map.scaleValues(userConfig.elevation);
+  if (userConfig.step) {
+    map.stepValues(userConfig.stepValue);
   }
   drawMap();
 }
 
 function drawMap() {
-  let config = getUserStyle();
-  console.log(config);
-  map.draw(ctx, canvas.width, canvas.height, config.style, config.shadow);
+  let userStyle = getUserStyle();
+  map.draw(ctx, canvas.width, canvas.height, userStyle.style, userStyle.shadow);
 }
 
 function getUserConfig() {
@@ -86,8 +82,8 @@ function getUserConfig() {
     frequency: parseFloat(dom.mapConfig[1].value),
     frequencyCoef: parseFloat(dom.mapConfig[2].value),
     elevation: parseFloat(dom.mapConfig[3].value),
-    floor: dom.floorToggle.checked,
-    floorValue: parseInt(dom.floorInput.value),
+    step: dom.stepToggle.checked,
+    stepValue: parseInt(dom.stepInput.value),
     seed: dom.seedInput.value.length > 0 ? dom.seedInput.value : false
   };
   return config;
@@ -112,9 +108,7 @@ function resetUserParam() {
   dom.mapConfig[1].value = 0.5;
   dom.mapConfig[2].value = 0.5;
   dom.mapConfig[3].value = 1;
-
-  // dom.floorToggle.checked = false;
-  dom.floorInput.value = 20;
-
+  dom.stepToggle.checked = false;
+  // dom.stepInput.value = 20;
   createHeightmap();
 }
