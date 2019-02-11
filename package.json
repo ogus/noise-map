@@ -1,7 +1,7 @@
 {
   "name": "noise-map",
   "version": "0.8.0",
-  "description": "Procedural map generator using Perlin and simplex noise",
+  "description": "A procedural 2D maps generator, with Perlin / simplex noise",
   "author": "Ogus",
   "license": "WTFPL",
   "main": "src/noise-map.js",
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ogus/perlin-map.git"
+    "url": "https://github.com/ogus/noise-map.git"
   },
-  "homepage": "https://github.com/ogus/perlin-map#readme"
+  "homepage": "https://github.com/ogus/noise-map#readme"
 }
