@@ -1,12 +1,12 @@
 {
   "name": "noise-map",
-  "version": "0.8.0",
-  "description": "A procedural 2D maps generator, with Perlin / simplex noise",
+  "version": "1.0.0",
+  "description": " A procedural 2D map generator based on Perlin / simplex noise",
   "author": "Ogus",
   "license": "WTFPL",
   "main": "src/noise-map.js",
   "scripts": {
-    "test": "tape test/*.js | faucet",
+    "test": "node test/test.js | faucet",
     "build": "uglifyjs src/noise-map.js -c -m reserved=['NoiseMap','MapGenerator','HeightMap'] -o src/noise-map.min.js"
   },
   "devDependencies": {

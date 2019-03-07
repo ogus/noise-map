@@ -1,12 +1,20 @@
 # Noise Map
-> A procedural 2D maps generator, with Perlin / simplex noise
+
+ A procedural 2D map generator based on Perlin / simplex noise
+
+## Example
+
+![Procedural Map](example/map.png)
 
 ## Usage
+
+Create a `Canvas` in your HTML code:
+
 ```html
-<body>
-  <canvas id="map-canvas" width="800" height="400"></canvas>
-</body>
+<canvas id="map-canvas" width="800" height="400"></canvas>
 ```
+
+Create a `HeightMap` with the `MapGenerator` in your JS code:
 ```js
 var NoiseMap = require('noise-map');
 
@@ -17,14 +25,26 @@ var context = document.getElementById('map-canvas').getContext('2d');
 heightmap.draw(context, 800, 400, 'real');
 ```
 
-Output:
-![Procedural Map](example/map.png)
-
-
 ## API
 
 
+
 ## Installation
+
+You can install the module with [npm](https://www.npmjs.com/):
+```sh
+npm install noise-map
+```
+
+You can import the module with [unpkg](https://unpkg.com/):
+```html
+<script type="text/javascript" src="https://unpkg.com/noise-map@latest"></script>
+```
+
+You can clone the repository & include the `noise-map.js` file in your project:
+```sh
+git clone https://github.com/ogus/pixel-jump.git
+```
 
 
 ## License
