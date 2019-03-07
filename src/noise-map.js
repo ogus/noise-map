@@ -187,9 +187,9 @@
    * @constructor
    * @param seed Any value, used as a seed
    */
-  function MapGenerator(seed) {
-    this.seed = null;
-    this.config = {
+  function MapGenerator(seed, config) {
+    this._seed = null;
+    this._config = {
       type: 'simplex',
       amplitude: 1,
       frequency: 0.5,
@@ -199,6 +199,7 @@
     };
 
     this.setSeed(seed);
+    this.setConfig(config);
   }
 
   MapGenerator.prototype = {
@@ -213,28 +214,28 @@
       if(s < 256) {
         s |= s << 8;
       }
-      this.seed = s;
-      generatePermutationTable(this.seed);
+      this._seed = s;
+      generatePermutationTable(this._seed);
     },
 
-    setConfig: function(inputConfig) {
-      inputConfig = inputConfig || {};
-      for (let p in this.config) {
-        if (inputConfig.hasOwnProperty(p)) {
-          this.config[p] = inputConfig[p];
+    setConfig: function(config) {
+      config = (config !== undefined) ? config : {};
+      for (let prop of Object.keys(this._config)) {
+        if (config.hasOwnProperty(prop)) {
+          this._config[prop] = config[prop];
         }
       }
     },
 
-    createMap: function (width, height, inputConfig) {
-      if (inputConfig) {
+    createMap: function (width, height, config) {
+      if (config !== undefined) {
         this.setConfig(inputConfig);
       }
-      if (!!this.config.generateSeed) {
+      // create the array of noise values
+      let c = this._config;
+      if (!!c.generateSeed) {
         this.setSeed();
       }
-      // create the array of noise values
-      let c = this.config;
       let noiseFunc = (c.type == 'perlin') ? perlinNoise : simplexNoise;
       let noise = generateNoise(width, height, c.amplitude, c.amplitudeCoef, c.frequency, c.frequencyCoef, noiseFunc);
       // scale values to [0, 1]
@@ -257,7 +258,6 @@
     this.height = height;
     this.size = this.width * this.height;
     this.data = data;
-    this.colorMap = null;
   }
 
   HeightMap.prototype = {
@@ -273,39 +273,39 @@
     scaleValues: function (expCoeff) {
       var coeff = Math.max( Math.min(expCoeff, 2), 0.5);
       if (coeff != 1) {
-        this.data = this.data.map(function (e) {
-          return Math.pow(e, coeff);
-        });
+        for (let i = 0; i < this.data.length; i++) {
+          this.data[i] = Math.pow(this.data[i], coeff);
+        }
       }
     },
 
     stepValues: function (n) {
       let steps = Math.max( Math.min(n, 100), 1);
       if (steps > 1) {
-        this.data = this.data.map(function (e) {
-          return Math.round(e*steps) / steps;
-        });
+        for (let i = 0; i < this.data.length; i++) {
+          this.data[i] = Math.round(this.data[i]*steps) / steps;
+        }
       }
     },
 
     inverseValues: function () {
-      this.data = this.data.map(function (e) {
-        return 1 - e;
-      });
+      for (let i = 0; i < this.data.length; i++) {
+        this.data[i] = 1 - this.data[i];
+      }
     },
 
-    draw(ctx, outWidth, outHeight, mapStyle, enableShadow) {
-      let cellWidth = Math.ceil(outWidth / this.width);
-      let cellHeight = Math.ceil(outHeight / this.height);
+    draw(context, mapWidth, mapHeight, mapStyle, enableShadow) {
+      let cellWidth = Math.ceil(mapWidth / this.width);
+      let cellHeight = Math.ceil(mapHeight / this.height);
       let colorMap = ColorMap.new(mapStyle);
       let shadow = !!enableShadow;
       for (let i = 0; i < this.width; i++) {
         for (let j = 0; j < this.height; j++) {
-          ctx.fillStyle = colorMap.getColor(this.getData(i, j));
-          ctx.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
+          context.fillStyle = colorMap.getColor(this.getData(i, j));
+          context.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
           if (shadow) {
-            ctx.fillStyle = this.getShadowColor(i, j);
-            ctx.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
+            context.fillStyle = this.getShadowColor(i, j);
+            context.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
           }
         }
       }
@@ -402,9 +402,6 @@
   };
 
   var NoiseMap = {
-    generateNoise: generateNoise,
-    perlinNoise: perlinNoise,
-    simlexNoise: simplexNoise,
     MapGenerator: MapGenerator,
     HeightMap: HeightMap
   };
