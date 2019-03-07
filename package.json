@@ -6,10 +6,13 @@
   "license": "WTFPL",
   "main": "src/noise-map.js",
   "scripts": {
-    "build": "terser src/noise-map.js -c -m reserved=['NoiseMap','Generator','HeightMap'] > src/noise-map.min.js"
+    "test": "tape test/*.js | faucet",
+    "build": "uglifyjs src/noise-map.js -c -m reserved=['NoiseMap','MapGenerator','HeightMap'] -o src/noise-map.min.js"
   },
   "devDependencies": {
-    "terser": "^3.9.2"
+    "faucet": "0.0.1",
+    "tape": "^4.10.1",
+    "uglify-js": "^3.4.9"
   },
   "keywords": [
     "procedural-generation",

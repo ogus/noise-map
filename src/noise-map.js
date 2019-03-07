@@ -5,7 +5,7 @@
 }(this, function () {
   'use strict';
 
-  const TABLE = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,
+  var TABLE = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,
     247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,
     165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,
     25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,
@@ -14,8 +14,8 @@
     97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,
     84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180];
 
-  const SIMPLEX_SKEW = 0.5 * (Math.sqrt(3) - 1);
-  const SIMPLEX_UNSKEW = (3 - Math.sqrt(3)) / 6;
+  var SIMPLEX_SKEW = 0.5 * (Math.sqrt(3) - 1);
+  var SIMPLEX_UNSKEW = (3 - Math.sqrt(3)) / 6;
 
   var permutationTable = [];
   var gradientTable = [
@@ -26,8 +26,8 @@
 
   function generatePermutationTable(seed) {
     permutationTable = new Array(512);
-    let v = 0;
-    for (let i = 0; i < 256; i++) {
+    var v = 0;
+    for (var i = 0; i < 256; i++) {
       if (i & 1) {
         v = TABLE[i] ^ (seed & 255);
       }
@@ -52,10 +52,10 @@
    */
   function generateNoise(width, height, startAmplitude, amplitudeCoef, startFrequency, frequencyCoef, noiseFunc) {
     // initialize noise matrix
-    let noise = new Array(width * height);
-    let n = 0, min = 99999, max = -99999;
-    let amplitude = 0, frequency = 0, value = 0;
-    let x = 0, y = 0, k = 0;
+    var noise = new Array(width * height);
+    var n = 0, min = 99999, max = -99999;
+    var amplitude = 0, frequency = 0, value = 0;
+    var x = 0, y = 0, k = 0;
     // fill the noise Array
     for (x = 0; x < width; x++) {
       for (y = 0; y < height; y++) {
@@ -83,25 +83,25 @@
    */
   function perlinNoise(inputX, inputY){
     // coords of the cell
-    let xFloor = Math.floor(inputX);
-    let yFloor = Math.floor(inputY);
+    var xFloor = Math.floor(inputX);
+    var yFloor = Math.floor(inputY);
     // relative xy coords in the cell
-    let x = inputX - xFloor;
-    let y = inputY - yFloor;
+    var x = inputX - xFloor;
+    var y = inputY - yFloor;
     xFloor &= 255; yFloor &= 255;
     // Calculate noise contributions from each corners
-    let grad;
+    var grad;
     grad = gradientTable[permutationTable[xFloor + permutationTable[yFloor]] & 7];
-    let n00 = grad.x*x + grad.y*y;
+    var n00 = grad.x*x + grad.y*y;
     grad = gradientTable[permutationTable[xFloor + permutationTable[yFloor+1]] & 7];
-    let n01 = grad.x*x + grad.y*(y-1);
+    var n01 = grad.x*x + grad.y*(y-1);
     grad = gradientTable[permutationTable[xFloor+1 + permutationTable[yFloor]] & 7];
-    let n10 = grad.x*(x-1) + grad.y*y;
+    var n10 = grad.x*(x-1) + grad.y*y;
     grad = gradientTable[permutationTable[xFloor+1 + permutationTable[yFloor+1]] & 7];
-    let n11 = grad.x*(x-1) + grad.y*(y-1);
+    var n11 = grad.x*(x-1) + grad.y*(y-1);
     // Interpolate the gradient of the four corners
-    let n = smooth(x);
-    let value = lerp(smooth(y), lerp(n, n00, n10), lerp(n, n01, n11));
+    var n = smooth(x);
+    var value = lerp(smooth(y), lerp(n, n00, n10), lerp(n, n01, n11));
     return value;
   }
 
@@ -111,32 +111,32 @@
    */
   function simplexNoise(inputX, inputY){
     // coords of the simplex
-    let skew = (inputX + inputY) * SIMPLEX_SKEW;
-    let xFloor = Math.floor(inputX + skew);
-    let yFloor = Math.floor(inputY + skew);
+    var skew = (inputX + inputY) * SIMPLEX_SKEW;
+    var xFloor = Math.floor(inputX + skew);
+    var yFloor = Math.floor(inputY + skew);
     // first unskewed corner in simplex
-    let x0 = inputX-xFloor + (xFloor + yFloor)*SIMPLEX_UNSKEW;
-    let y0 = inputY-yFloor + (xFloor + yFloor)*SIMPLEX_UNSKEW;
+    var x0 = inputX-xFloor + (xFloor + yFloor)*SIMPLEX_UNSKEW;
+    var y0 = inputY-yFloor + (xFloor + yFloor)*SIMPLEX_UNSKEW;
     // offset for the second corner of simplex
-    let x_offset, y_offset;
+    var x_offset, y_offset;
     if (x0 > y0) {
       x_offset = 1; y_offset = 0;
     }
     else {
       x_offset = 0; y_offset = 1;
     }
-     // third and last corner in unskewed coords
-    let x1 = x0 - x_offset + SIMPLEX_UNSKEW;
-    let y1 = y0 - y_offset + SIMPLEX_UNSKEW;
-    let x2 = x0 - 1 + 2*SIMPLEX_UNSKEW;
-    let y2 = y0 - 1 + 2*SIMPLEX_UNSKEW;
+    // third and last corner in unskewed coords
+    var x1 = x0 - x_offset + SIMPLEX_UNSKEW;
+    var y1 = y0 - y_offset + SIMPLEX_UNSKEW;
+    var x2 = x0 - 1 + 2*SIMPLEX_UNSKEW;
+    var y2 = y0 - 1 + 2*SIMPLEX_UNSKEW;
     // compute gradient of each corner
     xFloor &= 255; yFloor &= 255;
-    let g0 = gradientTable[permutationTable[xFloor + permutationTable[yFloor]] & 7];
-    let g1 = gradientTable[permutationTable[xFloor+x_offset + permutationTable[yFloor+y_offset]] & 7];
-    let g2 = gradientTable[permutationTable[xFloor+1 + permutationTable[yFloor+1]] & 7];
+    var g0 = gradientTable[permutationTable[xFloor + permutationTable[yFloor]] & 7];
+    var g1 = gradientTable[permutationTable[xFloor+x_offset + permutationTable[yFloor+y_offset]] & 7];
+    var g2 = gradientTable[permutationTable[xFloor+1 + permutationTable[yFloor+1]] & 7];
     // compute contribution of each corner
-    let n0 = 0, n1 = 0, n2 = 0, dist = 0;
+    var n0 = 0, n1 = 0, n2 = 0, dist = 0;
     dist = 0.5 - x0*x0-y0*y0;
     if (dist < 0) { n0 = 0; }
     else {
@@ -184,7 +184,7 @@
 
   /**
    * MapGenerator can generate new HeightMap by using noise function
-   * @constructor
+   * @varructor
    * @param seed Any value, used as a seed
    */
   function MapGenerator(seed, config) {
@@ -204,7 +204,7 @@
 
   MapGenerator.prototype = {
     setSeed: function (seed) {
-      let s = parseInt(seed) || Math.random();
+      var s = parseInt(seed) || Math.random();
       if (s < 0) {
         s *= -1;
       }
@@ -220,9 +220,10 @@
 
     setConfig: function(config) {
       config = (config !== undefined) ? config : {};
-      for (let prop of Object.keys(this._config)) {
-        if (config.hasOwnProperty(prop)) {
-          this._config[prop] = config[prop];
+      var properties = Object.keys(this._config);
+      for (var i = 0; i < properties.length; i++) {
+        if (config.hasOwnProperty(properties[i])) {
+          this._config[properties[i]] = config[properties[i]];
         }
       }
     },
@@ -232,15 +233,15 @@
         this.setConfig(inputConfig);
       }
       // create the array of noise values
-      let c = this._config;
+      var c = this._config;
       if (!!c.generateSeed) {
         this.setSeed();
       }
-      let noiseFunc = (c.type == 'perlin') ? perlinNoise : simplexNoise;
-      let noise = generateNoise(width, height, c.amplitude, c.amplitudeCoef, c.frequency, c.frequencyCoef, noiseFunc);
+      var noiseFunc = (c.type == 'perlin') ? perlinNoise : simplexNoise;
+      var noise = generateNoise(width, height, c.amplitude, c.amplitudeCoef, c.frequency, c.frequencyCoef, noiseFunc);
       // scale values to [0, 1]
-      let min = Math.min.apply(null, noise);
-      let max = Math.max.apply(null, noise);
+      var min = Math.min.apply(null, noise);
+      var max = Math.max.apply(null, noise);
       noise = noise.map(function (n) {
         return scale(n, min, max, 0,1);
       });
@@ -249,10 +250,10 @@
     }
   };
 
-   /**
-    * HeightMap contains data on noise values
-    * and methods to be displayed on a Canvas
-    */
+  /**
+   * HeightMap contains data on noise values
+   * and methods to be displayed on a Canvas
+   */
   function HeightMap(width, height, data) {
     this.width = width;
     this.height = height;
@@ -273,47 +274,47 @@
     scaleValues: function (expCoeff) {
       var coeff = Math.max( Math.min(expCoeff, 2), 0.5);
       if (coeff != 1) {
-        for (let i = 0; i < this.data.length; i++) {
+        for (var i = 0; i < this.data.length; i++) {
           this.data[i] = Math.pow(this.data[i], coeff);
         }
       }
     },
 
     stepValues: function (n) {
-      let steps = Math.max( Math.min(n, 100), 1);
+      var steps = Math.max( Math.min(n, 100), 1);
       if (steps > 1) {
-        for (let i = 0; i < this.data.length; i++) {
+        for (var i = 0; i < this.data.length; i++) {
           this.data[i] = Math.round(this.data[i]*steps) / steps;
         }
       }
     },
 
     inverseValues: function () {
-      for (let i = 0; i < this.data.length; i++) {
+      for (var i = 0; i < this.data.length; i++) {
         this.data[i] = 1 - this.data[i];
       }
     },
 
-    draw(context, mapWidth, mapHeight, mapStyle, enableShadow) {
-      let cellWidth = Math.ceil(mapWidth / this.width);
-      let cellHeight = Math.ceil(mapHeight / this.height);
-      let colorMap = ColorMap.new(mapStyle);
-      let shadow = !!enableShadow;
-      for (let i = 0; i < this.width; i++) {
-        for (let j = 0; j < this.height; j++) {
+    draw: function (context, mapWidth, mapHeight, mapStyle, enableShadow) {
+      var cellWidth = Math.ceil(mapWidth / this.width);
+      var cellHeight = Math.ceil(mapHeight / this.height);
+      var colorMap = ColorMap.new(mapStyle);
+      var shadow = !!enableShadow;
+      for (var i = 0; i < this.width; i++) {
+        for (var j = 0; j < this.height; j++) {
           context.fillStyle = colorMap.getColor(this.getData(i, j));
-          context.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
+          context.fillRect(i*cellWidth, j*cellHeight, cellWidth, cellHeight);
           if (shadow) {
             context.fillStyle = this.getShadowColor(i, j);
-            context.fillRect(i*cellWidth, j*cellHeight, cellWidth,cellHeight);
+            context.fillRect(i*cellWidth, j*cellHeight, cellWidth, cellHeight);
           }
         }
       }
     },
 
     getShadowColor: function (x, y) {
-      let intensity = 0;
-      let value = this.getData(x, y);
+      var intensity = 0;
+      var value = this.getData(x, y);
       if (value >= 0.5) {
         if (this.getData(x-1, y) > value) {
           intensity += 0.01;
@@ -329,46 +330,46 @@
     }
   };
 
-  const REAL_COLORS = {
-   R: [[0,2],[63,9],[126,17],[127,69],[128,42],[191,115],[225,153],[250,179],[255,255]],
-   G: [[0,43],[63,62],[126,82],[127,108],[128,102],[191,128],[225,143],[250,179],[255,255]],
-   B: [[0,68],[63,92],[126,112],[127,118],[128,41],[191,77],[225,92],[250,179],[255,255]]
+  var REAL_COLORS = {
+    R: [[0,2],[63,9],[126,17],[127,69],[128,42],[191,115],[225,153],[250,179],[255,255]],
+    G: [[0,43],[63,62],[126,82],[127,108],[128,102],[191,128],[225,143],[250,179],[255,255]],
+    B: [[0,68],[63,92],[126,112],[127,118],[128,41],[191,77],[225,92],[250,179],[255,255]]
   };
-  const HEAT_COLORS = {
-   R: [[0,94],[126,66],[127,77],[128,86],[160,207],[191,254],[223,247],[255,182]],
-   G: [[0,79],[126,138],[127,163],[128,173],[160,236],[191,235],[223,137],[255,28]],
-   B: [[0,162],[126,181],[127,177],[128,174],[160,158],[191,159],[223,81],[255,71]]
+  var HEAT_COLORS = {
+    R: [[0,94],[126,66],[127,77],[128,86],[160,207],[191,254],[223,247],[255,182]],
+    G: [[0,79],[126,138],[127,163],[128,173],[160,236],[191,235],[223,137],[255,28]],
+    B: [[0,162],[126,181],[127,177],[128,174],[160,158],[191,159],[223,81],[255,71]]
   };
-  const GEO_COLORS = {
-   R: [[0,10],[126,73],[127,109],[128,29],[160,107],[191,254],[223,207],[255,67]],
-   G: [[0,0],[126,186],[127,219],[128,160],[160,138],[191,245],[223,131],[255,40]],
-   B: [[0,79],[126,184],[127,184],[128,108],[160,44],[191,176],[223,55],[255,19]]
-   };
+  var GEO_COLORS = {
+    R: [[0,10],[126,73],[127,109],[128,29],[160,107],[191,254],[223,207],[255,67]],
+    G: [[0,0],[126,186],[127,219],[128,160],[160,138],[191,245],[223,131],[255,40]],
+    B: [[0,79],[126,184],[127,184],[128,108],[160,44],[191,176],[223,55],[255,19]]
+  };
 
-   var ColorMap = {
+  var ColorMap = {
     new: function (style) {
-      let colorFunction = null;
+      var colorFunction = null;
       switch (style) {
         case 'real':
-          colorFunction = function (t) {
-            return ColorMap.getColor(t, REAL_COLORS);
-          };
-          break;
+        colorFunction = function (t) {
+          return ColorMap.getColor(t, REAL_COLORS);
+        };
+        break;
         case 'heat':
-          colorFunction = function (t) {
-            return ColorMap.getColor(t, HEAT_COLORS);
-          };
-          break;
+        colorFunction = function (t) {
+          return ColorMap.getColor(t, HEAT_COLORS);
+        };
+        break;
         case 'geo':
-          colorFunction = function (t) {
-            return ColorMap.getColor(t, GEO_COLORS);
-          };
-          break;
+        colorFunction = function (t) {
+          return ColorMap.getColor(t, GEO_COLORS);
+        };
+        break;
         default:
-          style = 'gray';
-          colorFunction = function (t) {
-            return "hsl(0,0%," + String(t*100) + "%)";
-          };
+        style = 'gray';
+        colorFunction = function (t) {
+          return "hsl(0,0%," + String(t*100) + "%)";
+        };
       }
       // return a new object with a single 'getColor' function
       return {
@@ -385,25 +386,24 @@
     },
 
     interpolate: function (t, colorArray) {
-     for (let i = 0; i < colorArray.length; i++) {
-       // t match an array value
-       if (t == colorArray[i][0]) {
-         return colorArray[i][1];
-       }
-       // t is in an interval
-       if (t < colorArray[i][0]) {
-         let lower = colorArray[i-1];
-         let upper = colorArray[i];
-         return Math.floor(scale(t, lower[0], upper[0], lower[1], upper[1]));
-       }
-     }
-     return array[array.length-1][1];
-   }
+      for (var i = 0; i < colorArray.length; i++) {
+        // t match an array value
+        if (t == colorArray[i][0]) {
+          return colorArray[i][1];
+        }
+        // t is in an interval
+        if (t < colorArray[i][0]) {
+          var lower = colorArray[i-1];
+          var upper = colorArray[i];
+          return Math.floor(scale(t, lower[0], upper[0], lower[1], upper[1]));
+        }
+      }
+      return array[array.length-1][1];
+    }
   };
 
-  var NoiseMap = {
+  return {
     MapGenerator: MapGenerator,
     HeightMap: HeightMap
   };
-  return NoiseMap;
 }));
