@@ -43,7 +43,7 @@ You can import the module with [unpkg](https://unpkg.com/):
 
 You can clone the repository & include the `noise-map.js` file in your project:
 ```sh
-git clone https://github.com/ogus/pixel-jump.git
+git clone https://github.com/ogus/noise-map.git
 ```
 
 
