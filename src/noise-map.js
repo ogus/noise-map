@@ -230,7 +230,7 @@
 
     createMap: function (width, height, config) {
       if (config !== undefined) {
-        this.setConfig(inputConfig);
+        this.setConfig(config);
       }
       // create the array of noise values
       var c = this._config;
