@@ -1,6 +1,6 @@
 "use strict";
 
-var dom = {
+var DOM = {
   mapConfig: null,
   stepToggle: null,
   stepInput: null,
@@ -25,37 +25,37 @@ window.onload = function () {
 }
 
 function initDOM() {
-  dom.mapConfig = document.getElementsByName("map_config");
-  dom.stepToggle = document.getElementById("step_checkbox");
-  dom.stepInput = document.getElementById("step_input");
-  dom.seedInput = document.getElementById("seed_input");
-  dom.styleConfig = document.getElementById("style_config");
-  dom.shadowToggle = document.getElementById("shadow_checkbox");
-  dom.buttonStart = document.getElementById("start");
-  dom.buttonReset = document.getElementById("reset");
+  DOM.mapConfig = document.getElementsByName("map_config");
+  DOM.stepToggle = document.getElementById("step_checkbox");
+  DOM.stepInput = document.getElementById("step_input");
+  DOM.seedInput = document.getElementById("seed_input");
+  DOM.styleConfig = document.getElementById("style_config");
+  DOM.shadowToggle = document.getElementById("shadow_checkbox");
+  DOM.buttonStart = document.getElementById("start");
+  DOM.buttonReset = document.getElementById("reset");
 }
 
 function initListener() {
-  for (let i = 0; i < dom.mapConfig.length; i++) {
-    dom.mapConfig[i].addEventListener("change", createHeightmap, false);
+  for (let i = 0; i < DOM.mapConfig.length; i++) {
+    DOM.mapConfig[i].addEventListener("change", createHeightmap, false);
   }
 
-  dom.stepToggle.addEventListener("change", createHeightmap, false);
-  dom.stepInput.addEventListener("change", function (e) {
-    if(dom.stepToggle.checked){
+  DOM.stepToggle.addEventListener("change", createHeightmap, false);
+  DOM.stepInput.addEventListener("change", function (e) {
+    if(DOM.stepToggle.checked){
       createHeightmap();
     }
   }, false);
 
-  dom.styleConfig.addEventListener("change", drawMap, false);
-  dom.shadowToggle.addEventListener("change", drawMap, false);
+  DOM.styleConfig.addEventListener("change", drawMap, false);
+  DOM.shadowToggle.addEventListener("change", drawMap, false);
 
-  dom.buttonStart.addEventListener("click", startMapCreation, false);
-  dom.buttonReset.addEventListener("click", resetUserParam, false);
+  DOM.buttonStart.addEventListener("click", startMapCreation, false);
+  DOM.buttonReset.addEventListener("click", resetUserParam, false);
 }
 
 function startMapCreation() {
-  generator.setSeed(dom.seedInput.value);
+  generator.setSeed(DOM.seedInput.value);
   createHeightmap();
 }
 
@@ -78,25 +78,40 @@ function drawMap() {
 function getUserConfig() {
   let config = {
     amplitude: 1,
-    amplitudeCoef: parseFloat(dom.mapConfig[0].value),
-    frequency: parseFloat(dom.mapConfig[1].value),
-    frequencyCoef: parseFloat(dom.mapConfig[2].value),
-    elevation: parseFloat(dom.mapConfig[3].value),
-    step: dom.stepToggle.checked,
-    stepValue: parseInt(dom.stepInput.value),
-    seed: dom.seedInput.value.length > 0 ? dom.seedInput.value : false
+    amplitudeCoef: parseFloat(DOM.mapConfig[0].value),
+    frequency: parseFloat(DOM.mapConfig[1].value),
+    frequencyCoef: parseFloat(DOM.mapConfig[2].value),
+    elevation: parseFloat(DOM.mapConfig[3].value),
+    step: DOM.stepToggle.checked,
+    stepValue: parseInt(DOM.stepInput.value),
+    seed: DOM.seedInput.value.length > 0 ? DOM.seedInput.value : false
   };
   return config;
 }
 
 function getUserStyle() {
   let style = "";
-  for (let i = 0; i < dom.styleConfig.length; i++) {
-    if(dom.styleConfig[i].checked) {
-      style = dom.styleConfig[i].value;
+  for (let i = 0; i < DOM.styleConfig.length; i++) {
+    if(DOM.styleConfig[i].checked) {
+      style = DOM.styleConfig[i].value;
     }
   }
-  let shadow = dom.shadowToggle.checked;
+  switch (style) {
+    case "real":
+      style = NoiseMap.STYLE.REALISTIC;
+      break;
+    case "geo":
+      style = NoiseMap.STYLE.GEOLOGIC;
+      break;
+    case "heat":
+      style = NoiseMap.STYLE.HEATMAP;
+      break;
+    case "gray":
+      style = NoiseMap.STYLE.GRAY;
+      break;
+  }
+
+  let shadow = DOM.shadowToggle.checked;
   return {
     style: style,
     shadow: shadow
@@ -104,11 +119,11 @@ function getUserStyle() {
 }
 
 function resetUserParam() {
-  dom.mapConfig[0].value = 0.5;
-  dom.mapConfig[1].value = 0.5;
-  dom.mapConfig[2].value = 0.5;
-  dom.mapConfig[3].value = 1;
-  dom.stepToggle.checked = false;
-  // dom.stepInput.value = 20;
+  DOM.mapConfig[0].value = 0.5;
+  DOM.mapConfig[1].value = 0.5;
+  DOM.mapConfig[2].value = 0.5;
+  DOM.mapConfig[3].value = 1;
+  DOM.stepToggle.checked = false;
+  // DOM.stepInput.value = 20;
   createHeightmap();
 }

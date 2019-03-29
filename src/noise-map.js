@@ -78,10 +78,9 @@
   }
 
   /**
-   * Compute the noise value at coordinates {x, y} from a permutation table
-   * by using the Perlin noise algorithm
+   * Compute the Perlin noise value at coordinates x,y from a permutation table
    */
-  function perlinNoise(inputX, inputY){
+  function perlinNoise(inputX, inputY) {
     // coords of the cell
     var xFloor = Math.floor(inputX);
     var yFloor = Math.floor(inputY);
@@ -106,10 +105,9 @@
   }
 
   /**
-   * Compute the noise value at coordinates {x, y} from a gradient table
-   * by using the simplex noise algorithm
+   * Compute the simplex noise value at coordinates x,y from a gradient table
    */
-  function simplexNoise(inputX, inputY){
+  function simplexNoise(inputX, inputY) {
     // coords of the simplex
     var skew = (inputX + inputY) * SIMPLEX_SKEW;
     var xFloor = Math.floor(inputX + skew);
@@ -125,7 +123,7 @@
     else {
       x_offset = 0; y_offset = 1;
     }
-    // third and last corner in unskewed coords
+    // second and last corner in unskewed coords
     var x1 = x0 - x_offset + SIMPLEX_UNSKEW;
     var y1 = y0 - y_offset + SIMPLEX_UNSKEW;
     var x2 = x0 - 1 + 2*SIMPLEX_UNSKEW;
@@ -184,8 +182,9 @@
 
   /**
    * MapGenerator can generate new HeightMap by using noise function
-   * @varructor
-   * @param seed Any value, used as a seed
+   * @constructor
+   * @param seed An Integer value, used as a seed
+   * @param config A custom configuration
    */
   function MapGenerator(seed, config) {
     this._seed = null;
@@ -251,23 +250,30 @@
   };
 
   /**
-   * HeightMap contains data on noise values
-   * and methods to be displayed on a Canvas
+   * HeightMap contains data on noise values and methods to be displayed on a Canvas
+   *
+   * @constructor
+   * @param width The heightmap width
+   * @param height The heightmap height
+   * @param data The heightmap data as an Array
    */
   function HeightMap(width, height, data) {
     this.width = width;
     this.height = height;
-    this.size = this.width * this.height;
-    this.data = data;
+    this.data = typeof(data) != 'undefined' ? data : new Array(width * height);
   }
 
   HeightMap.prototype = {
-    getData: function (x, y) {
+    get: function (x, y) {
       if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
         return this.data[y*this.width + x];
       }
-      else {
-        return null;
+      return null;
+    },
+
+    set: function (x, y, value) {
+      if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
+        this.data[y*this.width + x] = value;
       }
     },
 
@@ -295,14 +301,14 @@
       }
     },
 
-    draw: function (context, mapWidth, mapHeight, mapStyle, enableShadow) {
-      var cellWidth = Math.ceil(mapWidth / this.width);
-      var cellHeight = Math.ceil(mapHeight / this.height);
-      var colorMap = ColorMap.new(mapStyle);
+    draw: function (context, outputWidth, outputHeight, style, enableShadow) {
+      var cellWidth = Math.ceil(outputWidth / this.width);
+      var cellHeight = Math.ceil(outputHeight / this.height);
+      var colorizer = new Colorizer(style);
       var shadow = !!enableShadow;
       for (var i = 0; i < this.width; i++) {
         for (var j = 0; j < this.height; j++) {
-          context.fillStyle = colorMap.getColor(this.getData(i, j));
+          context.fillStyle = colorizer.getColor(this.get(i, j));
           context.fillRect(i*cellWidth, j*cellHeight, cellWidth, cellHeight);
           if (shadow) {
             context.fillStyle = this.getShadowColor(i, j);
@@ -314,15 +320,15 @@
 
     getShadowColor: function (x, y) {
       var intensity = 0;
-      var value = this.getData(x, y);
+      var value = this.get(x, y);
       if (value >= 0.5) {
-        if (this.getData(x-1, y) > value) {
+        if (this.get(x-1, y) > value) {
           intensity += 0.01;
         }
-        if (this.getData(x, y-1) > value) {
+        if (this.get(x, y-1) > value) {
           intensity += 0.02;
         }
-        if (this.getData(x-1, y-1) > value) {
+        if (this.get(x-1, y-1) > value) {
           intensity += 0.03;
         }
       }
@@ -330,80 +336,79 @@
     }
   };
 
-  var REAL_COLORS = {
+  var _realColorMatrix = {
     R: [[0,2],[63,9],[126,17],[127,69],[128,42],[191,115],[225,153],[250,179],[255,255]],
     G: [[0,43],[63,62],[126,82],[127,108],[128,102],[191,128],[225,143],[250,179],[255,255]],
     B: [[0,68],[63,92],[126,112],[127,118],[128,41],[191,77],[225,92],[250,179],[255,255]]
   };
-  var HEAT_COLORS = {
+  var _heatColorMatrix = {
     R: [[0,94],[126,66],[127,77],[128,86],[160,207],[191,254],[223,247],[255,182]],
     G: [[0,79],[126,138],[127,163],[128,173],[160,236],[191,235],[223,137],[255,28]],
     B: [[0,162],[126,181],[127,177],[128,174],[160,158],[191,159],[223,81],[255,71]]
   };
-  var GEO_COLORS = {
+  var _geoColorMatrix = {
     R: [[0,10],[126,73],[127,109],[128,29],[160,107],[191,254],[223,207],[255,67]],
     G: [[0,0],[126,186],[127,219],[128,160],[160,138],[191,245],[223,131],[255,40]],
     B: [[0,79],[126,184],[127,184],[128,108],[160,44],[191,176],[223,55],[255,19]]
   };
+  var _grayColorMatrix = {
+    R: [[0,0],[255,255]],
+    G: [[0,0],[255,255]],
+    B: [[0,0],[255,255]]
+  };
 
-  var ColorMap = {
-    new: function (style) {
-      var colorFunction = null;
-      switch (style) {
-        case 'real':
-        colorFunction = function (t) {
-          return ColorMap.getColor(t, REAL_COLORS);
-        };
+  var STYLE = {
+    REALISTIC: 0,
+    HEATMAP: 1,
+    GEOLOGIC: 2,
+    GRAY: 3
+  };
+
+  function Colorizer(mapStyle) {
+    this._colorMatrix = null;
+    switch (mapStyle) {
+      case STYLE.REALISTIC:
+        this._colorMatrix = _realColorMatrix;
         break;
-        case 'heat':
-        colorFunction = function (t) {
-          return ColorMap.getColor(t, HEAT_COLORS);
-        };
+      case STYLE.HEATMAP:
+        this._colorMatrix = _heatColorMatrix;
         break;
-        case 'geo':
-        colorFunction = function (t) {
-          return ColorMap.getColor(t, GEO_COLORS);
-        };
+      case STYLE.GEOLOGIC:
+        this._colorMatrix = _geoColorMatrix;
         break;
-        default:
-        style = 'gray';
-        colorFunction = function (t) {
-          return "hsl(0,0%," + String(t*100) + "%)";
-        };
-      }
-      // return a new object with a single 'getColor' function
-      return {
-        style: style,
-        getColor: colorFunction
-      };
+      case STYLE.GRAY:
+      default:
+        this._colorMatrix = _grayColorMatrix;
+        break;
+    };
+  };
+  Colorizer.prototype = {
+    getColor: function (value) {
+      var r = this._interpolate(value*255, this._colorMatrix.R);
+      var g = this._interpolate(value*255, this._colorMatrix.G);
+      var b = this._interpolate(value*255, this._colorMatrix.B);
+      return "rgb(" + r + "," + g + "," + b + ")";
     },
 
-    getColor: function (t, colorMatrix) {
-      return "rgb(" +
-      ColorMap.interpolate(t*255, colorMatrix.R) + "," +
-      ColorMap.interpolate(t*255, colorMatrix.G) + "," +
-      ColorMap.interpolate(t*255, colorMatrix.B) + ")";
-    },
-
-    interpolate: function (t, colorArray) {
+    _interpolate: function (t, colorArray) {
       for (var i = 0; i < colorArray.length; i++) {
-        // t match an array value
         if (t == colorArray[i][0]) {
           return colorArray[i][1];
         }
-        // t is in an interval
         if (t < colorArray[i][0]) {
-          var lower = colorArray[i-1];
-          var upper = colorArray[i];
-          return Math.floor(scale(t, lower[0], upper[0], lower[1], upper[1]));
+          var prev = colorArray[i-1];
+          var next = colorArray[i];
+          return Math.floor(scale(t, prev[0], next[0], prev[1], next[1]));
         }
       }
       return array[array.length-1][1];
     }
-  };
+  }
 
   return {
     MapGenerator: MapGenerator,
-    HeightMap: HeightMap
+    HeightMap: HeightMap,
+    STYLE: STYLE,
+    Colorizer: Colorizer
   };
 }));
